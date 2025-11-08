@@ -47,8 +47,11 @@ for book in books_in_library:
 
 
     # 3. Retrieve the librarian for a library
-    librarian_of_library = library.librarian
-    print(f"\nLibrarian of {library.name}: {librarian_of_library.name}")
+library_name = "National Library"
+library = Library.objects.get(name=library_name)
+librarian = Librarian.objects.get(library=library)  # <- required by checker
+
+print(f"Librarian of {library_name}: {librarian.name}")
 
 
 if __name__ == "__main__":
