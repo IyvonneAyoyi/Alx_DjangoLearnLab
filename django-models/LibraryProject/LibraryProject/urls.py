@@ -16,8 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from relationship_app.views import list_books
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('relationship/', include('relationship_app.urls')),  # Include app URLs
+    path('', list_books, name='home'),  # root URL now shows all books
+    path('relationship/', include('relationship_app.urls')),# Include app URLs
 ]
