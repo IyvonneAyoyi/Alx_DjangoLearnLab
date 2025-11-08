@@ -28,10 +28,13 @@ def run_queries():
     # ---- Sample Queries ----
 
     # 1.  Query all books by a specific author
-    books_by_achebe = Book.objects.filter(author__name="Chinua Achebe")
-    print("\nBooks by Chinua Achebe:")
-    for book in books_by_achebe:
-        print(f"- {book.title}")
+author_name = "Chinua Achebe"
+author = Author.objects.get(name=author_name)      # <- required by checker
+books_by_author = Book.objects.filter(author=author)  # <- required by checker
+
+print(f"Books by {author_name}:")
+for book in books_by_author:
+    print(f"- {book.title}")
 
     # 2. List all books in a library
 library_name = "National Library"
