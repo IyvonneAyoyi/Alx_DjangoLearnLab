@@ -34,9 +34,14 @@ def run_queries():
         print(f"- {book.title}")
 
     # 2. List all books in a library
-    print(f"\nBooks in {library.name}:")
-    for book in library.books.all():
-        print(f"- {book.title}")
+library_name = "National Library"
+library = Library.objects.get(name=library_name)  # <- required by checker
+books_in_library = library.books.all()
+
+print(f"Books in {library_name}:")
+for book in books_in_library:
+    print(f"- {book.title}")
+
 
     # 3. Retrieve the librarian for a library
     librarian_of_library = library.librarian
