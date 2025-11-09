@@ -1,15 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>List of Books</title>
-</head>
-<body>
-    <h1>Books Available:</h1>
-    <ul>
-        {% for book in books %}
-        <li>{{ book.title }} by {{ book.author.name }}</li>
-        {% endfor %}
-    </ul>
-</body>
-</html>
+<!-- Add Book button -->
+<a href="{% url 'add_book' %}">Add New Book</a>
+
+<!-- List all books -->
+<ul>
+  {% for book in books %}
+    <li>
+      {{ book.title }} by {{ book.author.name }}
+      <!-- Edit link -->
+      <a href="{% url 'edit_book' book.pk %}">Edit</a>
+      <!-- Delete link -->
+      <a href="{% url 'delete_book' book.pk %}">Delete</a>
+    </li>
+  {% endfor %}
+</ul>
