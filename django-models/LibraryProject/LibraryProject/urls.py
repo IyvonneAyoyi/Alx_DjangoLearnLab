@@ -17,9 +17,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from relationship_app.views import list_books
+from relationship_app import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', list_books, name='home'),  # root URL now shows all books
     path('relationship/', include('relationship_app.urls')),# Include app URLs
+    path('books/', views.list_books, name='list_books'),
+    path('books/add/', views.add_book, name='add_book'),
+    path('books/edit/<int:pk>/', views.edit_book, name='edit_book'),
+    path('books/delete/<int:pk>/', views.delete_book, name='delete_book'),
 ]
+
