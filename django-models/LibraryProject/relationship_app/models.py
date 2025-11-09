@@ -50,6 +50,7 @@ class UserProfile(models.Model):
         return f"{self.user.username} - {self.role}"
 
 
+
 # Signals to automatically create and save UserProfile
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
@@ -58,4 +59,6 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
+    # Ensure profile exists and then save
+    UserProfile.objects.get_or_create(user=instance)
     instance.userprofile.save()
