@@ -14,6 +14,18 @@ from .forms import BookForm
 def list_books(request):
     # Security: Using Django ORM (Book.objects.all()) prevents SQL injection
     # The ORM properly parameterizes queries and escapes data
+    
+    # Permission: Check if user has permission to view books
+    # If user is not authenticated or lacks permission, they can still see the page
+    # but will see a limited or redirect message
+    if request.user.is_authenticated:
+        # User must have can_view_book permission or be staff/superuser
+        if not (request.user.has_perm('relationship_app.can_view_book') or 
+                request.user.is_staff or 
+                request.user.is_superuser):
+            messages.warning(request, "You don't have permission to view books")
+            return redirect('login')
+    
     books = Book.objects.all()
     
     # Security: Django automatically escapes context data in templates
@@ -119,11 +131,12 @@ from .models import Book
 from .forms import BookForm
 
 # Add Book view
-@permission_required('relationship_app.can_add_book', raise_exception=True)
+@permission_required('relationship_app.can_create_book', raise_exception=True)
 def add_book(request):
-    # Security: @permission_required decorator enforces authorization
-    # It checks if the user has the 'can_add_book' permission before executing the view
+    # Permissions: @permission_required decorator enforces authorization
+    # It checks if the user has the 'can_create_book' permission before executing the view
     # raise_exception=True returns HTTP 403 Forbidden for unauthorized access
+    # This permission is typically assigned to the 'Editors' group
     if request.method == 'POST':
         form = BookForm(request.POST)
         # Security: ModelForm validation prevents invalid data and SQL injection
@@ -132,6 +145,7 @@ def add_book(request):
             # Security: form.save() uses parameterized queries through Django ORM
             # This prevents SQL injection attacks
             form.save()
+            messages.success(request, "Book created successfully!")
             return redirect('list_books')
     else:
         form = BookForm()
@@ -139,10 +153,11 @@ def add_book(request):
 
 
 # Edit Book view
-@permission_required('relationship_app.can_change_book', raise_exception=True)
+@permission_required('relationship_app.can_edit_book', raise_exception=True)
 def edit_book(request, pk):
-    # Security: @permission_required decorator enforces authorization
-    # It checks if the user has the 'can_change_book' permission before executing the view
+    # Permissions: @permission_required decorator enforces authorization
+    # It checks if the user has the 'can_edit_book' permission before executing the view
+    # This permission is typically assigned to the 'Editors' group
     # Security: get_object_or_404() validates the pk parameter and prevents information disclosure
     book = get_object_or_404(Book, pk=pk)
     if request.method == 'POST':
@@ -151,6 +166,7 @@ def edit_book(request, pk):
         if form.is_valid():
             # Security: form.save() uses parameterized queries - prevents SQL injection
             form.save()
+            messages.success(request, "Book updated successfully!")
             return redirect('list_books')
     else:
         form = BookForm(instance=book)
@@ -160,14 +176,17 @@ def edit_book(request, pk):
 # Delete Book view
 @permission_required('relationship_app.can_delete_book', raise_exception=True)
 def delete_book(request, pk):
-    # Security: @permission_required decorator enforces authorization
+    # Permissions: @permission_required decorator enforces authorization
     # It checks if the user has the 'can_delete_book' permission before executing the view
+    # This permission is typically only assigned to 'Admins' group for security
     # Security: get_object_or_404() validates the pk parameter and prevents information disclosure
     book = get_object_or_404(Book, pk=pk)
     if request.method == 'POST':
         # Security: Only POST requests with valid CSRF token can delete objects
         # CSRF token is checked by CsrfViewMiddleware (enabled by default)
+        book_title = book.title
         book.delete()
+        messages.success(request, f"Book '{book_title}' deleted successfully!")
         return redirect('list_books')
     # Security: GET requests display confirmation page but don't perform deletion
     return render(request, 'relationship_app/delete_book.html', {'book': book})

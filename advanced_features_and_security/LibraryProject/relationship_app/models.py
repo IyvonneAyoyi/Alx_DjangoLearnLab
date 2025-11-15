@@ -19,10 +19,15 @@ class Book(models.Model):
         return self.title
 
     class Meta:
+        # Custom permissions for granular access control
+        # These permissions can be assigned to groups and users
         permissions = [
-            ("can_add_book", "Can add book"),
-            ("can_change_book", "Can change book"),
-            ("can_delete_book", "Can delete book"),
+            ("can_view_book", "Can view book"),  # View/list books
+            ("can_create_book", "Can create book"),  # Create new books
+            ("can_edit_book", "Can edit book"),  # Edit existing books
+            ("can_delete_book", "Can delete book"),  # Delete books
+            ("can_publish_book", "Can publish book"),  # Publish books
+            ("can_manage_authors", "Can manage authors"),  # Manage authors
         ]
         
 class Library(models.Model):
