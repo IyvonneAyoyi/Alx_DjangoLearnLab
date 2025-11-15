@@ -10,11 +10,16 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Environment-based configuration
+# Use environment variables to determine deployment mode
+ENVIRONMENT = os.getenv('ENVIRONMENT', 'development').lower()
+IS_PRODUCTION = ENVIRONMENT == 'production'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -24,10 +29,11 @@ SECRET_KEY = 'django-insecure-*ar3dr517a40accw@x5+6w@&sz2!bia=a477a9z6ho75+js8%s
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Set DEBUG to False in production to hide sensitive information and disable the debug toolbar
-DEBUG = True  # Change to False in production
+DEBUG = not IS_PRODUCTION  # Automatically set based on environment
 
 # Configure allowed hosts for production. In production, specify the domain(s) where the app is hosted
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']  # Update with your production domain
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'example.com', 'www.example.com']  # Update with your production domain
+
 
 
 # Application definition
@@ -88,25 +94,6 @@ DATABASES = {
 }
 
 
-# Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
-
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
-
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
@@ -122,6 +109,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
+
 STATIC_URL = 'static/'
 
 # Default primary key field type
@@ -132,54 +120,134 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'bookshelf.CustomUser'
 
 # =====================================================
-# SECURITY SETTINGS - Best Practices Implementation
+# SECURITY SETTINGS - HTTPS and Secure Configuration
 # =====================================================
 
-# 1. CSRF PROTECTION SETTINGS
-# CSRF (Cross-Site Request Forgery) tokens protect against unauthorized form submissions
-# These settings ensure CSRF cookies are only sent over HTTPS in production
-CSRF_COOKIE_SECURE = False  # Set to True in production (requires HTTPS)
-CSRF_COOKIE_HTTPONLY = True  # Prevents JavaScript from accessing the CSRF cookie
-CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']  # Trusted origins for CSRF
+# Step 1: HTTPS and SSL/TLS REDIRECT SETTINGS
+# These settings enforce HTTPS connections and implement security headers
+# Production-ready HTTPS configuration
 
-# 2. SESSION SECURITY SETTINGS
-# Protects session cookies by ensuring they're only sent over HTTPS
-SESSION_COOKIE_SECURE = False  # Set to True in production (requires HTTPS)
-SESSION_COOKIE_HTTPONLY = True  # Prevents JavaScript from accessing session cookies
-SESSION_COOKIE_AGE = 3600  # Session expires after 1 hour of inactivity (in seconds)
+# Redirect all HTTP requests to HTTPS in production
+SECURE_SSL_REDIRECT = IS_PRODUCTION  # True in production, False in development
+
+# HTTP Strict-Transport-Security (HSTS)
+# Instructs browsers to only access the site via HTTPS for a specified duration
+SECURE_HSTS_SECONDS = 31536000 if IS_PRODUCTION else 0  # 1 year in production, 0 in development
+SECURE_HSTS_INCLUDE_SUBDOMAINS = IS_PRODUCTION  # True in production
+SECURE_HSTS_PRELOAD = IS_PRODUCTION  # True in production to allow HSTS preload list inclusion
+
+# Step 2: SECURE COOKIE SETTINGS
+# Ensures cookies are only sent over HTTPS connections
+
+# Session cookies - only sent over HTTPS
+SESSION_COOKIE_SECURE = IS_PRODUCTION  # True in production (requires HTTPS)
+SESSION_COOKIE_HTTPONLY = True  # Prevents JavaScript access to session cookies
+SESSION_COOKIE_AGE = 3600  # Session expires after 1 hour (3600 seconds)
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Session expires when browser is closed
 
-# 3. SECURITY HEADERS
-# These settings configure browser-level security protections
+# CSRF cookies - only sent over HTTPS
+CSRF_COOKIE_SECURE = IS_PRODUCTION  # True in production (requires HTTPS)
+CSRF_COOKIE_HTTPONLY = True  # Prevents JavaScript access to CSRF token
+CSRF_COOKIE_AGE = 31449600  # CSRF cookie expires after 1 year
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+    'https://localhost:8000',
+    'https://127.0.0.1:8000',
+    'https://example.com',
+    'https://www.example.com',
+]  # Update with your production domains
 
-# X-Frame-Options: Prevents clickjacking by controlling whether the page can be framed
-X_FRAME_OPTIONS = 'DENY'  # Prevents any framing of the application
+# Step 3: SECURE BROWSER HEADERS
+# Additional HTTP headers to protect against various attacks
 
-# Prevents MIME type sniffing attacks
+# X-Frame-Options: Prevents clickjacking by blocking embedding in iframes
+X_FRAME_OPTIONS = 'DENY'
+
+# Prevents MIME type sniffing (browsers respect Content-Type header)
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
-# Enables browser XSS protection
+# Enables browser's built-in XSS protection
 SECURE_BROWSER_XSS_FILTER = True
 
-# Content Security Policy header - restricts which resources can be loaded
-# This significantly reduces XSS attack surface
-SECURE_HSTS_SECONDS = 0  # Set to 31536000 (1 year) in production for HTTPS
-SECURE_HSTS_INCLUDE_SUBDOMAINS = False  # Set to True in production
-SECURE_HSTS_PRELOAD = False  # Set to True in production for HSTS preload list
-SECURE_SSL_REDIRECT = False  # Set to True in production to force HTTPS
+# Referrer-Policy: Controls how much referrer information is shared
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
-# 4. PASSWORD VALIDATION
-# Already configured with AUTH_PASSWORD_VALIDATORS above
-# Includes checks for:
-# - Username similarity
-# - Minimum length (default 8 characters)
-# - Common passwords
-# - Numeric-only passwords
+# Content-Security-Policy header configuration
+SECURE_CONTENT_SECURITY_POLICY = {
+    'default-src': ("'self'",),
+    'script-src': ("'self'", "'unsafe-inline'"),
+    'style-src': ("'self'", "'unsafe-inline'"),
+    'img-src': ("'self'", "data:", "https:"),
+    'font-src': ("'self'",),
+    'connect-src': ("'self'",),
+    'frame-ancestors': ("'none'",),
+    'base-uri': ("'self'",),
+}
 
-# 5. CONTENT SECURITY POLICY (CSP)
-# Can be enhanced with django-csp package for more granular control
-# Basic CSP is set via HTTP headers in middleware
+# Step 4: ADDITIONAL SECURITY SETTINGS
 
-# 6. CORS SETTINGS (if needed for API access)
-# Configure CORS_ALLOWED_ORIGINS if you have frontend and backend on different domains
-CORS_ALLOWED_ORIGINS = []  # Add trusted domains here if needed
+# Prevent caching of sensitive pages
+# Set cache-control headers to prevent storing sensitive data in browser cache
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https') if IS_PRODUCTION else None
+
+# Secure password hashing algorithm
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+]
+
+# Password validation
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {'min_length': 12}  # Require at least 12 characters
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
+
+# CORS configuration for API access (if needed)
+CORS_ALLOWED_ORIGINS = [
+    'https://example.com',
+    'https://www.example.com',
+] if IS_PRODUCTION else []
+
+# Logging configuration for security events
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'security.log',
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django.security': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
