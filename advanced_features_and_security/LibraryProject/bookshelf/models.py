@@ -24,3 +24,29 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.username
+
+
+class Book(models.Model):
+    """
+    Book model with custom permissions for role-based access control.
+    """
+    title = models.CharField(max_length=200)
+    author = models.CharField(max_length=100)
+    isbn = models.CharField(max_length=13, unique=True, null=True, blank=True)
+    publication_date = models.DateField(null=True, blank=True)
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        permissions = [
+            ("can_view_book", "Can view book"),
+            ("can_create_book", "Can create book"),
+            ("can_edit_book", "Can edit book"),
+            ("can_delete_book", "Can delete book"),
+            ("can_publish_book", "Can publish book"),
+            ("can_manage_authors", "Can manage authors"),
+        ]
+
+    def __str__(self):
+        return self.title
