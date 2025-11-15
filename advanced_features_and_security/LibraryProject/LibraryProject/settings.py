@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'bookshelf',
     'relationship_app',
+    'accounts'
 ]
 
 MIDDLEWARE = [
@@ -122,3 +123,9 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# tell Django to use our custom user model
+AUTH_USER_MODEL = 'accounts.CustomUser'
+
+ #media settings for uploaded images (profile_photo)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
