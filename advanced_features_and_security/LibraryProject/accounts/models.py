@@ -41,8 +41,5 @@ class CustomUser(AbstractUser):
     objects = CustomUserManager()
 
     # If you want createsuperuser to prompt for extra fields, include them in REQUIRED_FIELDS.
-    # For most projects, email is required:
     REQUIRED_FIELDS = ["email"]
 
-    def __str__(self):
-        return self.get_username()
