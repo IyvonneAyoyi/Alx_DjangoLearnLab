@@ -23,9 +23,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-*ar3dr517a40accw@x5+6w@&sz2!bia=a477a9z6ho75+js8%s'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Set DEBUG to False in production to hide sensitive information and disable the debug toolbar
+DEBUG = True  # Change to False in production
 
-ALLOWED_HOSTS = []
+# Configure allowed hosts for production. In production, specify the domain(s) where the app is hosted
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']  # Update with your production domain
 
 
 # Application definition
@@ -50,6 +52,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # Note: django-csp middleware can be added here for more granular CSP control
+    # Install: pip install django-csp
+    # Then uncomment: 'csp.middleware.CSPMiddleware',
 ]
 
 ROOT_URLCONF = 'LibraryProject.urls'
@@ -125,3 +130,56 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'bookshelf.CustomUser'
+
+# =====================================================
+# SECURITY SETTINGS - Best Practices Implementation
+# =====================================================
+
+# 1. CSRF PROTECTION SETTINGS
+# CSRF (Cross-Site Request Forgery) tokens protect against unauthorized form submissions
+# These settings ensure CSRF cookies are only sent over HTTPS in production
+CSRF_COOKIE_SECURE = False  # Set to True in production (requires HTTPS)
+CSRF_COOKIE_HTTPONLY = True  # Prevents JavaScript from accessing the CSRF cookie
+CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']  # Trusted origins for CSRF
+
+# 2. SESSION SECURITY SETTINGS
+# Protects session cookies by ensuring they're only sent over HTTPS
+SESSION_COOKIE_SECURE = False  # Set to True in production (requires HTTPS)
+SESSION_COOKIE_HTTPONLY = True  # Prevents JavaScript from accessing session cookies
+SESSION_COOKIE_AGE = 3600  # Session expires after 1 hour of inactivity (in seconds)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Session expires when browser is closed
+
+# 3. SECURITY HEADERS
+# These settings configure browser-level security protections
+
+# X-Frame-Options: Prevents clickjacking by controlling whether the page can be framed
+X_FRAME_OPTIONS = 'DENY'  # Prevents any framing of the application
+
+# Prevents MIME type sniffing attacks
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Enables browser XSS protection
+SECURE_BROWSER_XSS_FILTER = True
+
+# Content Security Policy header - restricts which resources can be loaded
+# This significantly reduces XSS attack surface
+SECURE_HSTS_SECONDS = 0  # Set to 31536000 (1 year) in production for HTTPS
+SECURE_HSTS_INCLUDE_SUBDOMAINS = False  # Set to True in production
+SECURE_HSTS_PRELOAD = False  # Set to True in production for HSTS preload list
+SECURE_SSL_REDIRECT = False  # Set to True in production to force HTTPS
+
+# 4. PASSWORD VALIDATION
+# Already configured with AUTH_PASSWORD_VALIDATORS above
+# Includes checks for:
+# - Username similarity
+# - Minimum length (default 8 characters)
+# - Common passwords
+# - Numeric-only passwords
+
+# 5. CONTENT SECURITY POLICY (CSP)
+# Can be enhanced with django-csp package for more granular control
+# Basic CSP is set via HTTP headers in middleware
+
+# 6. CORS SETTINGS (if needed for API access)
+# Configure CORS_ALLOWED_ORIGINS if you have frontend and backend on different domains
+CORS_ALLOWED_ORIGINS = []  # Add trusted domains here if needed

@@ -1,6 +1,10 @@
 <h2>Edit Book</h2>
-<form method="post">
+<!-- CSRF Protection: The {% csrf_token %} tag is essential for protecting against Cross-Site Request Forgery attacks.
+     It generates a unique token that is validated on the server side when the form is submitted.
+     This ensures that form submissions originate from your application and not from a malicious third-party site. -->
+<form method="post" novalidate>
   {% csrf_token %}
+  <!-- Form rendering with auto-generated form fields. Django automatically escapes all form data to prevent XSS attacks. -->
   {{ form.as_p }}
   <button type="submit">Save Changes</button>
 </form>

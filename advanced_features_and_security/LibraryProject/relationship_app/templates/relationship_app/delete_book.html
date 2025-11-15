@@ -1,9 +1,13 @@
 <h2>Delete Book</h2>
-<p>Are you sure you want to delete "{{ book.title }}"?</p>
+<p>Are you sure you want to delete "<strong>{{ book.title }}</strong>"?</p>
 
-<form method="post">
+<!-- CSRF Protection: The {% csrf_token %} tag is essential for protecting against Cross-Site Request Forgery attacks.
+     It generates a unique token that is validated on the server side when the form is submitted.
+     This ensures that form submissions originate from your application and not from a malicious third-party site. -->
+<form method="post" novalidate>
   {% csrf_token %}
-  <button type="submit">Yes, delete</button>
+  <!-- Only POST requests with valid CSRF token are accepted for destructive operations like delete -->
+  <button type="submit" style="background-color: #dc3545; color: white; padding: 8px 16px; border: none; cursor: pointer;">Yes, delete</button>
 </form>
 
 <a href="{% url 'list_books' %}">Cancel</a>

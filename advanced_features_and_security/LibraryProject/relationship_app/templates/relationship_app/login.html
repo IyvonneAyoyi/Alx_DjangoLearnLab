@@ -1,18 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
- {% load static %}   
+{% load static %}   
 <head>
     <meta charset="UTF-8">
+    <!-- Content Security Policy: Restricts which resources can be loaded to prevent XSS attacks -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
     <h1>Login</h1>
-    <form method="post">
+    <form method="post" novalidate>
         {% csrf_token %}
+        <!-- CSRF protection: The {% csrf_token %} tag generates a unique token for each form submission
+             This prevents Cross-Site Request Forgery attacks by validating the origin of form data -->
         {{ form.as_p }}
         <button type="submit">Login</button>
     </form>
-    <a href="{% url 'register' %}">Register</a>
+    <p><a href="{% url 'register' %}">Don't have an account? Register here</a></p>
 </body>
 </html>
