@@ -3,6 +3,8 @@ from .models import Book
 from .models import Library
 from django.views.generic.detail import DetailView
 from django.contrib.auth.decorators import user_passes_test
+from .forms import BookForm
+
 
 # Function-based view to list all books
 def list_books(request):

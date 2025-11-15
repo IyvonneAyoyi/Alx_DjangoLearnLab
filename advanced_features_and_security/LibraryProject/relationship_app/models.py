@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -18,7 +18,7 @@ class Book(models.Model):
     def __str__(self):
         return self.title
 
-class Meta:
+    class Meta:
         permissions = [
             ("can_add_book", "Can add book"),
             ("can_change_book", "Can change book"),
@@ -49,7 +49,7 @@ class UserProfile(models.Model):
         ('Member', 'Member'),
     ]
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
 
     def __str__(self):
@@ -58,13 +58,12 @@ class UserProfile(models.Model):
 
 
 # Signals to automatically create and save UserProfile
-@receiver(post_save, sender=User)
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
-        UserProfile.objects.create(user=instance, role='Member')  # default role is Member
+        UserProfile.objects.create(user=instance, role='Member')
 
-@receiver(post_save, sender=User)
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def save_user_profile(sender, instance, **kwargs):
-    # Ensure profile exists and then save
-    UserProfile.objects.get_or_create(user=instance)
-    instance.userprofile.save()
+    profile, _ = UserProfile.objects.get_or_create(user=instance)
+    profile.save()
