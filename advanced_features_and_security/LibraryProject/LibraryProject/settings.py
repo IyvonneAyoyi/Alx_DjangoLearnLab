@@ -32,7 +32,7 @@ SECRET_KEY = 'django-insecure-*ar3dr517a40accw@x5+6w@&sz2!bia=a477a9z6ho75+js8%s
 DEBUG = not IS_PRODUCTION  # Automatically set based on environment
 
 # Configure allowed hosts for production. In production, specify the domain(s) where the app is hosted
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'example.com', 'www.example.com']  # Update with your production domain
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'example.com', 'www.example.com', 'testserver']  # Update with your production domain
 
 
 

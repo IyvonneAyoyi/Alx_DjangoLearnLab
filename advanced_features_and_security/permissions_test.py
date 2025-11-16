@@ -7,20 +7,28 @@ import os
 import sys
 import django
 
-# Add LibraryProject to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'LibraryProject'))
-os.chdir(os.path.join(os.path.dirname(__file__), 'LibraryProject'))
+# Add LibraryProject to path - MUST be before Django setup
+project_dir = os.path.join(os.path.dirname(__file__), 'LibraryProject')
+sys.path.insert(0, project_dir)
+os.chdir(project_dir)
 
-# Setup Django
+# Setup Django BEFORE any imports
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'LibraryProject.settings')
 django.setup()
 
-from django.contrib.auth.models import User, Group, Permission
+# NOW import Django and app models
+from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.test import Client
-from relationship_app.models import Book, Author, Library
+from relationship_app.models import Book, Author, Library  # type: ignore
 from django.urls import reverse
 from django.contrib.auth.decorators import permission_required
+
+# Import after Django setup
+try:
+    from bookshelf.models import CustomUser as User  # type: ignore
+except ImportError:
+    from django.contrib.auth.models import User
 
 class PermissionsTestSuite:
     """Test suite for verifying permissions and groups system."""
@@ -349,9 +357,9 @@ class PermissionsTestSuite:
     def run_all_tests(self):
         """Run all permission tests."""
         print("\n\n")
-        print("╔" + "═" * 68 + "╗")
-        print("║" + " " * 15 + "DJANGO PERMISSIONS TESTING SUITE" + " " * 21 + "║")
-        print("╚" + "═" * 68 + "╝")
+        print("=" * 70)
+        print(" " * 15 + "DJANGO PERMISSIONS TESTING SUITE")
+        print("=" * 70)
         
         self.setup_test_data()
         self.test_groups_exist()
@@ -375,11 +383,12 @@ class PermissionsTestSuite:
         print(f"Pass Rate:    {pass_rate:.1f}%")
         print("=" * 70 + "\n")
         
+        
         if self.failed_tests == 0:
-            print("✓ All tests passed! Permissions system is working correctly.\n")
+            print("[PASS] All tests passed! Permissions system is working correctly.\n")
             return True
         else:
-            print(f"✗ {self.failed_tests} test(s) failed. Please review the errors above.\n")
+            print(f"[FAIL] {self.failed_tests} test(s) failed. Please review the errors above.\n")
             return False
 
 
