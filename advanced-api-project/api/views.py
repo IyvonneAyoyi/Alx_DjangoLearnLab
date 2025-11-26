@@ -31,3 +31,7 @@ class BookDeleteView(generics.DestroyAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [permissions.IsAuthenticated]
+    
+#Implement Permissions
+class BookCreateView(generics.CreateAPIView):
+    permission_classes = [permissions.IsAuthenticated]  # only logged-in users
