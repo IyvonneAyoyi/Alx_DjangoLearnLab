@@ -53,6 +53,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'django_blog.urls'
 
+LOGIN_URL = '/login/'
 
 STATIC_URL = '/static/'
 

@@ -69,6 +69,7 @@ class PostDetailView(DetailView):
     template_name = 'blog/post_detail.html'
 
 class PostCreateView(LoginRequiredMixin, CreateView):
+    login_url = '/login/'
     model = Post
     form_class = PostForm
     template_name = 'blog/post_form.html'
@@ -78,6 +79,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    login_url = '/login/'
     model = Post
     form_class = PostForm
     template_name = 'blog/post_form.html'
@@ -87,6 +89,7 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return self.request.user == post.author
 
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    login_url = '/login/'
     model = Post
     template_name = 'blog/post_confirm_delete.html'
     success_url = reverse_lazy('post_list')
