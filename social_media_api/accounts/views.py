@@ -1,4 +1,4 @@
-from rest_framework import generics
+from rest_framework import generics, permissions  # ADD 'permissions' HERE
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from .models import CustomUser
@@ -8,9 +8,11 @@ from django.contrib.auth import authenticate
 class RegisterView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [permissions.AllowAny]  # ADD THIS
 
 class LoginView(generics.GenericAPIView):
     serializer_class = LoginSerializer
+    permission_classes = [permissions.AllowAny]  # ADD THIS
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -20,11 +22,11 @@ class LoginView(generics.GenericAPIView):
             token, created = Token.objects.get_or_create(user=user)
             return Response({'token': token.key})
         return Response({'error': 'Invalid Credentials'}, status=400)
-    
+
 # Profile View to retrieve and update user profile
-    class UserProfileView(generics.RetrieveUpdateAPIView):
-     serializer_class = UserSerializer
-     permission_classes = [permissions.IsAuthenticated]  # Only authenticated users
+class UserProfileView(generics.RetrieveUpdateAPIView):  # FIX INDENTATION
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]  # This should work now
 
     def get_object(self):
         return self.request.user  # Return the currently logged-in user
