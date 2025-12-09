@@ -20,3 +20,11 @@ class LoginView(generics.GenericAPIView):
             token, created = Token.objects.get_or_create(user=user)
             return Response({'token': token.key})
         return Response({'error': 'Invalid Credentials'}, status=400)
+    
+# Profile View to retrieve and update user profile
+    class UserProfileView(generics.RetrieveUpdateAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]  # Only authenticated users
+
+    def get_object(self):
+        return self.request.user  # Return the currently logged-in user
