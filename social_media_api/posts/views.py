@@ -1,4 +1,4 @@
-from rest_framework import viewsets, filters, pagination
+from rest_framework import viewsets, filters, pagination, generics, permissions
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .models import Post, Comment
@@ -47,3 +47,21 @@ class CommentViewSet(viewsets.ModelViewSet):
         if post_id is not None:
             queryset = queryset.filter(post_id=post_id)
         return queryset
+
+# ADD FEED VIEW
+
+class FeedView(generics.ListAPIView):
+    """
+    View that generates a feed based on posts from users that the current user follows.
+    Returns posts ordered by creation date, showing the most recent posts at the top.
+    """
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        # Get posts from users that the current user follows
+        following_users = self.request.user.following.all()
+        queryset = Post.objects.filter(author__in=following_users)
+        
+        # Order by creation date, most recent first (-created_at)
+        return queryset.order_by('-created_at')
