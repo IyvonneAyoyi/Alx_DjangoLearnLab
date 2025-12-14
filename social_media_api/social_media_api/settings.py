@@ -89,6 +89,7 @@ WSGI_APPLICATION = 'social_media_api.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 # CHECKER: Database Credentials setup
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -96,7 +97,7 @@ DATABASES = {
     }
 }
 
-# Use PostgreSQL in production (uncomment when deploying)
+#Use PostgreSQL in production (uncomment when deploying)
 # DATABASES['default'] = dj_database_url.config(
 #     default=config('DATABASE_URL'),
 #     conn_max_age=600,
